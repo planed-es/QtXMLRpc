@@ -35,7 +35,7 @@ QString QXMLRpcClient::getXmlForMethodCall(const QString& methodName, const QVar
   {
     result += "    <param>\n";
     result += "      <value>\n";
-    result += fromVariantToXmlValue(value);
+    result += "        " + fromVariantToXmlValue(value) + '\n';
     result += "      </value>\n";
     result += "    </param>\n";
   }
@@ -69,12 +69,12 @@ QString QXMLRpcClient::fromVariantToXmlValue(const QVariant& variant)
       return "<int>" + variant.toString() + "</int>";
     case QMetaType::Double:
     case QMetaType::Float:
-    case QMetaType::Float16:
       return "<double>" + variant.toString() + "</double>";
     case QMetaType::Bool:
       return "<boolean>" + (variant.toBool() ? QString("1") : QString("0")) + "</boolean>";
     case QMetaType::QDateTime:
-      return "<dateTime.iso8601>" + variant.toDateTime().toString(Qt::ISODate) + "</dateTime.iso8601>";
+      return "<dateTime.iso8601>" + variant.toDateTime().toString("yyyyMMddThh:mm:ss") + "</dateTime.iso8601>";
+      //return "<dateTime.iso8601>" + variant.toDateTime().toString(Qt::ISODate) + "</dateTime.iso8601>";
     default:
       break ;
   }
@@ -85,12 +85,12 @@ QString QXMLRpcClient::fromVariantListToXmlValue(const QVariantList& list)
 {
   QString result;
 
-  result += "<array><data>";
+  result += "<array><data>\n";
   for (const QVariant& value : list)
   {
     result += "<value>";
     result += fromVariantToXmlValue(value);
-    result += "</value>";
+    result += "</value>\n";
   }
   result += "</data></array>";
   return result;
@@ -100,7 +100,7 @@ QString QXMLRpcClient::fromVariantHashToXmlValue(const QVariantHash& hash)
 {
   QString result;
 
-  result += "<struct>";
+  result += "<struct>\n";
   for (auto it = hash.begin() ; it != hash.end() ; ++it)
   {
     result += "<member>";
@@ -108,7 +108,7 @@ QString QXMLRpcClient::fromVariantHashToXmlValue(const QVariantHash& hash)
     result += "<value>";
     result += fromVariantToXmlValue(it.value());
     result += "</value>";
-    result += "</member>";
+    result += "</member>\n";
   }
   result += "</struct>";
   return result;
@@ -186,10 +186,21 @@ static QVariant xmlValueToVariant(QDomElement value)
   return data.text();
 }
 
+static QVariant raiseXmlRpcFault(QByteArray& body, QDomElement element)
+{
+  QVariant     value = xmlValueToVariant(element.firstChildElement());
+  QXMLRpcFault fault(value);
+
+  qDebug() << "XMLRpc fault: code = " << fault.code();
+  qDebug() << "XMLRpc fault: string = " << fault.message();
+  return value;
+}
+
 QVariant QXMLRpcClient::getReturnValueFromReply(QNetworkReply& reply)
 {
+  int status = reply.attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
   QDomDocument document;
-  QDomElement value;
+  QDomElement value, fault;
   QByteArray replyBody = reply.readAll();
 
   /*
@@ -197,6 +208,9 @@ QVariant QXMLRpcClient::getReturnValueFromReply(QNetworkReply& reply)
   std::cout << replyBody.toStdString() << std::endl;
   */
   document.setContent(replyBody);
+  fault = document.documentElement().firstChildElement("fault");
+  if (!fault.isNull())
+    return raiseXmlRpcFault(replyBody, fault);
   value = getElementByPath(document.documentElement(), {"params", "param", "value"});
   return xmlValueToVariant(value);
 }

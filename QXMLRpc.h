@@ -6,6 +6,23 @@
 # include <QString>
 # include <QUrl>
 
+class QXMLRpcFault
+{
+public:
+  QXMLRpcFault(QVariant value) : value(value.toMap()) {}
+
+  int code() const { return value["faultCode"].toInt(); }
+  QString message() const { return value["faultString"].toString(); }
+
+  static bool isFault(QVariant value)
+  {
+    return value.typeId() == QMetaType::QVariantMap && value.toMap().contains("faultCode");
+  }
+
+private:
+  QVariantMap value;
+};
+
 class QXMLRpcClient : public QNetworkAccessManager
 {
   Q_OBJECT

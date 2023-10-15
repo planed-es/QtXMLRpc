@@ -1,6 +1,5 @@
 #include "QXMLRpc.h"
 #include <QDomDocument>
-#include <iostream>
 
 QXMLRpcClient::QXMLRpcClient(QObject* parent) : QNetworkAccessManager(parent)
 {
@@ -49,10 +48,6 @@ QString QXMLRpcClient::getXmlForMethodCall(const QString& methodName, const QVar
   }
   result += "  </params>\n";
   result += "</methodCall>\n";
-  /*
-  qDebug() << "XML for method call:";
-  std::cout << result.toStdString() << std::endl;
-  */
   return result;
 }
 
@@ -211,10 +206,6 @@ QVariant QXMLRpcClient::getReturnValueFromReply(QNetworkReply& reply)
   QDomElement value, fault;
   QByteArray replyBody = reply.readAll();
 
-  /*
-  qDebug() << "QXMLRpcClient:";
-  std::cout << replyBody.toStdString() << std::endl;
-  */
   document.setContent(replyBody);
   fault = document.documentElement().firstChildElement("fault");
   if (!fault.isNull())

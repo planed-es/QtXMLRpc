@@ -77,7 +77,11 @@ QString QXMLRpcClient::fromVariantToXmlValue(const QVariant& variant)
       return "<boolean>" + (variant.toBool() ? QString("1") : QString("0")) + "</boolean>";
     case QMetaType::QDateTime:
       return "<dateTime.iso8601>" + variant.toDateTime().toString("yyyyMMddThh:mm:ss") + "</dateTime.iso8601>";
-      //return "<dateTime.iso8601>" + variant.toDateTime().toString(Qt::ISODate) + "</dateTime.iso8601>";
+    case QMetaType::QByteArray:
+      return "<base64>" + variant.toByteArray().toBase64() + "</base64>";
+    case QMetaType::Nullptr:
+      return "<nil></nil>"; // Non-standard extension
+    case QMetaType::QString:
     default:
       break ;
   }

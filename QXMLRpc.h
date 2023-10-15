@@ -30,10 +30,13 @@ public:
   QXMLRpcClient(QObject* parent = nullptr);
 
   void setEndpoint(const QUrl& value) { endpoint = value; emit endpointChanged(); }
+  void call(const QString& methodName, const QVariantList& parameters) { call(methodName, parameters, std::function<void(QVariant)>()); }
   void call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback);
 
 signals:
   void endpointChanged();
+  void responseReceived(QVariant);
+  void faultReceived(QXMLRpcFault);
 
 private:
   QUrl endpoint;

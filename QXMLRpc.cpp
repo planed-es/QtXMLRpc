@@ -18,7 +18,15 @@ void QXMLRpcClient::call(const QString& methodName, const QVariantList& paramete
   reply = QNetworkAccessManager::post(*request, body.toUtf8());
   connect(reply, &QNetworkReply::finished, [=]()
   {
-    callback(getReturnValueFromReply(*reply));
+    QVariant returnValue = getReturnValueFromReply(*reply);
+
+    if (QXMLRpcFault::isFault(returnValue))
+      emit faultReceived(QXMLRpcFault(returnValue));
+    else
+      emit responseReceived(returnValue);
+    if (callback)
+      callback(returnValue);
+    reply->deleteLater();
     delete request;
   });
 }

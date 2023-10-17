@@ -4,6 +4,8 @@ This library is a simple XML-RPC client using QtNetwork. It uses [QVariant](http
 
 ## Setup
 
+Make sure you have the Qt development package installed for either Qt6 or Qt5. This library requires the Core, Network and Xml components.
+
 Build the library with the following commands:
 
 ```

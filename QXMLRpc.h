@@ -14,10 +14,7 @@ public:
   int code() const { return value["faultCode"].toInt(); }
   QString message() const { return value["faultString"].toString(); }
 
-  static bool isFault(QVariant value)
-  {
-    return value.typeId() == QMetaType::QVariantMap && value.toMap().contains("faultCode");
-  }
+  static bool isFault(QVariant value);
 
 private:
   QVariantMap value;

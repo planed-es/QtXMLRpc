@@ -1,5 +1,6 @@
 #include "QXMLRpc.h"
 #include <QDomDocument>
+#include <QtGlobal>
 
 QXMLRpcClient::QXMLRpcClient(QObject* parent) : QNetworkAccessManager(parent)
 {
@@ -53,7 +54,11 @@ QString QXMLRpcClient::getXmlForMethodCall(const QString& methodName, const QVar
 
 QString QXMLRpcClient::fromVariantToXmlValue(const QVariant& variant)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
   switch (variant.typeId())
+#else
+  switch (static_cast<QMetaType::Type>(variant.type()))
+#endif
   {
     case QMetaType::QVariantList:
     case QMetaType::QStringList:

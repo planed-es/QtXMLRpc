@@ -16,17 +16,18 @@ message("Using Qt${QT_VERSION_MAJOR}")
 
 set(source_files QXMLRpc.cpp QXMLRpcFault.cpp)
 set(header_files QXMLRpc.h)
+set(TARGET_NAME "Qt${QT_VERSION_MAJOR}XMLRpc")
 
-add_library(QtXMLRpc SHARED ${source_files} ${header_files})
-target_link_libraries(QtXMLRpc PRIVATE
+add_library(${TARGET_NAME} SHARED ${source_files} ${header_files})
+target_link_libraries(${TARGET_NAME} PRIVATE
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Network
   Qt${QT_VERSION_MAJOR}::Xml)
 
-target_compile_definitions(QtXMLRpc PRIVATE QTXMLRPC_LIBRARY)
+target_compile_definitions(${TARGET_NAME} PRIVATE QTXMLRPC_LIBRARY)
 
-configure_file(QtXMLRpc.pc.in QtXMLRpc.pc @ONLY)
+configure_file(QtXMLRpc.pc.in ${TARGET_NAME}.pc @ONLY)
 
 install(FILES ${header_files} DESTINATION include)
-install(TARGETS QtXMLRpc LIBRARY DESTINATION lib)
-install(FILES ${CMAKE_BINARY_DIR}/QtXMLRpc.pc DESTINATION lib/pkgconfig)
+install(TARGETS ${TARGET_NAME} LIBRARY DESTINATION lib)
+install(FILES ${CMAKE_BINARY_DIR}/${TARGET_NAME}.pc DESTINATION lib/pkgconfig)

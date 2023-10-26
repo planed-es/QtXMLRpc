@@ -30,7 +30,7 @@ QtXMLRpc uses pkgconfig: once installed on your system, you can easily add it to
 find_package(PkgConfig)
 
 # import QtXMLRpc
-pkg_check_modules(QTXMLRPC REQUIRED QtXMLRpc>=1.0.0)
+pkg_check_modules(QTXMLRPC REQUIRED Qt${QT_VERSION_MAJOR}XMLRpc>=1.0.0)
 
 # register the library's include directory
 include_directories(${QTXMLRPC_INCLUDE_DIRS})

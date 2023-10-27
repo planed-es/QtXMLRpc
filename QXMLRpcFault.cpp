@@ -1,6 +1,16 @@
 #include "QXMLRpc.h"
 #include <QtGlobal>
 
+int QXMLRpcFault::code() const
+{
+  return value["faultCode"].toInt();
+}
+
+QString QXMLRpcFault::message() const
+{
+  return value["faultString"].toString();
+}
+
 bool QXMLRpcFault::isFault(QVariant value)
 {
   int typeId;

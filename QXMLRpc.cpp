@@ -6,6 +6,12 @@ QXMLRpcClient::QXMLRpcClient(QObject* parent) : QNetworkAccessManager(parent)
 {
 }
 
+void QXMLRpcClient::setEndpoint(const QUrl& value)
+{
+  endpoint = value;
+  emit endpointChanged();
+}
+
 void QXMLRpcClient::call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback)
 {
   QString body = getXmlForMethodCall(methodName, parameters);

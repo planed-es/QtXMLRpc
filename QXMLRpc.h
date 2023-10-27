@@ -11,8 +11,8 @@ class QXMLRpcFault
 public:
   QXMLRpcFault(QVariant value) : value(value.toMap()) {}
 
-  int code() const { return value["faultCode"].toInt(); }
-  QString message() const { return value["faultString"].toString(); }
+  int code() const;
+  QString message() const;
 
   static bool isFault(QVariant value);
 
@@ -26,7 +26,7 @@ class QXMLRpcClient : public QNetworkAccessManager
 public:
   QXMLRpcClient(QObject* parent = nullptr);
 
-  void setEndpoint(const QUrl& value) { endpoint = value; emit endpointChanged(); }
+  void setEndpoint(const QUrl& value);
   void call(const QString& methodName, const QVariantList& parameters) { call(methodName, parameters, std::function<void(QVariant)>()); }
   void call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback);
 

@@ -26,6 +26,8 @@ class QXMLRpcClient : public QNetworkAccessManager
 public:
   QXMLRpcClient(QObject* parent = nullptr);
 
+  static bool debugMode;
+
   void setEndpoint(const QUrl& value);
   void call(const QString& methodName, const QVariantList& parameters) { call(methodName, parameters, std::function<void(QVariant)>()); }
   void call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback);

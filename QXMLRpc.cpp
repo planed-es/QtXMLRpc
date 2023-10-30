@@ -2,6 +2,8 @@
 #include <QDomDocument>
 #include <QtGlobal>
 
+bool QXMLRpcClient::debugMode = false;
+
 QXMLRpcClient::QXMLRpcClient(QObject* parent) : QNetworkAccessManager(parent)
 {
 }
@@ -22,6 +24,8 @@ void QXMLRpcClient::call(const QString& methodName, const QVariantList& paramete
   request->setRawHeader("Content-Type", "text/xml");
   request->setRawHeader("User-Agent", "qt-xmlrpc/0.1");
   reply = QNetworkAccessManager::post(*request, body.toUtf8());
+  if (debugMode)
+    qDebug() << "Sending XMLRpc query" << qPrintable(body);
   connect(reply, &QNetworkReply::finished, [=]()
   {
     QVariant returnValue = getReturnValueFromReply(*reply);
@@ -221,6 +225,8 @@ QVariant QXMLRpcClient::getReturnValueFromReply(QNetworkReply& reply)
   QDomElement value, fault;
   QByteArray replyBody = reply.readAll();
 
+  if (debugMode)
+    qDebug() << "Received XMLRpc response" << qPrintable(replyBody);
   document.setContent(replyBody);
   fault = document.documentElement().firstChildElement("fault");
   if (!fault.isNull())

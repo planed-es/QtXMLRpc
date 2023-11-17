@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network Xml REQUIRED)
 
-message("Using Qt${QT_VERSION_MAJOR}")
+message("Building ${PROJECT_NAME} using Qt${QT_VERSION_MAJOR}")
 
 set(source_files QXMLRpc.cpp QXMLRpcFault.cpp)
 set(header_files QXMLRpc.h)

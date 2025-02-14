@@ -62,6 +62,11 @@ QString QXMLRpcClient::getXmlForMethodCall(const QString& methodName, const QVar
   return result;
 }
 
+static QString escapeString(QString source)
+{
+  return source.replace("&", "&amp;").replace("<", "&lt;");
+}
+
 QString QXMLRpcClient::fromVariantToXmlValue(const QVariant& variant)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -100,7 +105,7 @@ QString QXMLRpcClient::fromVariantToXmlValue(const QVariant& variant)
     default:
       break ;
   }
-  return "<string>" + variant.toString() + "</string>";
+  return "<string>" + escapeString(variant.toString()) + "</string>";
 }
 
 QString QXMLRpcClient::fromVariantListToXmlValue(const QVariantList& list)

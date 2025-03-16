@@ -24,7 +24,8 @@ class QXMLRpcClient : public QNetworkAccessManager
 {
   Q_OBJECT
 public:
-  QXMLRpcClient(QObject* parent = nullptr);
+  explicit QXMLRpcClient(QObject* parent = nullptr);
+  virtual ~QXMLRpcClient();
 
   static bool debugMode;
 
@@ -39,11 +40,12 @@ signals:
 
 private:
   QUrl endpoint;
+  unsigned short clientId;
   static QString getXmlForMethodCall(const QString& methodName, const QVariantList& parameters);
   static QString fromVariantToXmlValue(const QVariant& variant);
   static QString fromVariantListToXmlValue(const QVariantList& list);
   static QString fromVariantHashToXmlValue(const QVariantHash& hash);
-  static QVariant getReturnValueFromReply(QNetworkReply& reply);
+  QVariant getReturnValueFromReply(QNetworkReply& reply);
 };
 
 #endif

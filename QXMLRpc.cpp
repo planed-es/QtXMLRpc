@@ -1,11 +1,26 @@
 #include "QXMLRpc.h"
 #include <QDomDocument>
 #include <QtGlobal>
+#include <atomic>
+#define DEBUG_PREFIX "QXMLRpcClient[" << clientId << ']'
+#define xmlrpcDebug qDebug() << DEBUG_PREFIX
+#define xmlrpcInfo  qInfo()  << DEBUG_PREFIX
 
-bool QXMLRpcClient::debugMode = false;
+bool QXMLRpcClient::debugMode = true;
 
 QXMLRpcClient::QXMLRpcClient(QObject* parent) : QNetworkAccessManager(parent)
 {
+  static std::atomic_ushort idCounter(0);
+
+  clientId = ++idCounter;
+  if (debugMode)
+    xmlrpcDebug << "Constructed";
+}
+
+QXMLRpcClient::~QXMLRpcClient()
+{
+  if (debugMode)
+    xmlrpcDebug << "Destroyed"; 
 }
 
 void QXMLRpcClient::setEndpoint(const QUrl& value)
@@ -24,8 +39,9 @@ void QXMLRpcClient::call(const QString& methodName, const QVariantList& paramete
   request->setRawHeader("Content-Type", "text/xml");
   request->setRawHeader("User-Agent", "qt-xmlrpc/0.1");
   reply = QNetworkAccessManager::post(*request, body.toUtf8());
+  xmlrpcInfo << "Calling" << endpoint << "::" << methodName;
   if (debugMode)
-    qDebug() << "Sending XMLRpc query" << qPrintable(body);
+    xmlrpcDebug << "Sending XMLRpc query" << qPrintable(body);
   connect(reply, &QNetworkReply::finished, [=]()
   {
     QVariant returnValue = getReturnValueFromReply(*reply);
@@ -213,13 +229,13 @@ static QVariant xmlValueToVariant(QDomElement value)
   return data.text();
 }
 
-static QVariant raiseXmlRpcFault(QByteArray& body, QDomElement element)
+static QVariant raiseXmlRpcFault(unsigned short clientId, QByteArray& body, QDomElement element)
 {
   QVariant     value = xmlValueToVariant(element.firstChildElement());
   QXMLRpcFault fault(value);
 
-  qDebug() << "XMLRpc fault: code = " << fault.code();
-  qDebug() << "XMLRpc fault: string = " << fault.message();
+  xmlrpcInfo << "XMLRpc fault: code = " << fault.code();
+  xmlrpcInfo << "XMLRpc fault: string = " << fault.message();
   return value;
 }
 
@@ -230,12 +246,13 @@ QVariant QXMLRpcClient::getReturnValueFromReply(QNetworkReply& reply)
   QDomElement value, fault;
   QByteArray replyBody = reply.readAll();
 
+  xmlrpcInfo << "Response status=" << status;
   if (debugMode)
-    qDebug() << "Received XMLRpc response" << qPrintable(replyBody);
+    xmlrpcDebug << "Received XMLRpc response" << qPrintable(replyBody);
   document.setContent(replyBody);
   fault = document.documentElement().firstChildElement("fault");
   if (!fault.isNull())
-    return raiseXmlRpcFault(replyBody, fault);
+    return raiseXmlRpcFault(clientId, replyBody, fault);
   value = getElementByPath(document.documentElement(), {"params", "param", "value"});
   return xmlValueToVariant(value);
 }

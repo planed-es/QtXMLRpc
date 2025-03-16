@@ -29,7 +29,7 @@ void QXMLRpcClient::setEndpoint(const QUrl& value)
   emit endpointChanged();
 }
 
-void QXMLRpcClient::call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback)
+QFuture<QVariant> QXMLRpcClient::call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback)
 {
   QString body = getXmlForMethodCall(methodName, parameters);
   QNetworkReply* reply;
@@ -52,9 +52,12 @@ void QXMLRpcClient::call(const QString& methodName, const QVariantList& paramete
       emit responseReceived(returnValue);
     if (callback)
       callback(returnValue);
+    else
+      xmlrpcDebug << "XMLRpc query: no callback to call";
     reply->deleteLater();
     delete request;
   });
+  return QtFuture::connect(this, &QXMLRpcClient::responseReceived);
 }
 
 QString QXMLRpcClient::getXmlForMethodCall(const QString& methodName, const QVariantList& parameters)

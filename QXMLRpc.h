@@ -5,6 +5,7 @@
 # include <QtNetwork/QNetworkReply>
 # include <QString>
 # include <QUrl>
+# include <QFuture>
 
 class QXMLRpcFault
 {
@@ -30,8 +31,8 @@ public:
   static bool debugMode;
 
   void setEndpoint(const QUrl& value);
-  void call(const QString& methodName, const QVariantList& parameters) { call(methodName, parameters, std::function<void(QVariant)>()); }
-  void call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback);
+  QFuture<QVariant> call(const QString& methodName, const QVariantList& parameters) { return call(methodName, parameters, std::function<void(QVariant)>()); }
+  QFuture<QVariant> call(const QString& methodName, const QVariantList& parameters, std::function<void (QVariant)> callback);
 
 signals:
   void endpointChanged();
